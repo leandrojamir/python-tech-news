@@ -53,7 +53,6 @@ def scrape_updates(html_content):
         # response = requests.get("http://books.toscrape.com/")
         # selector = Selector(text=response.text)
         selector = Selector(text=html_content)
-        print(f"\n>selector:{selector}")
         #  A função deve fazer o scrape do conteúdo recebido para obter uma
         # lista contendo as URLs das notícias listadas.
         #  Atenção: NÃO inclua a notícia em destaque da primeira página,
@@ -63,7 +62,6 @@ def scrape_updates(html_content):
         # rel="bookmark">Website development: o que é, o que faz e salário!
         # O guia inicial!</a></h2>
         urls_list = selector.css(".entry-title a::attr(href)").getall()
-        print(f"\n>selector:{urls_list}")
     except (requests.ReadTimeout, requests.HTTPError):
         return None
 
@@ -71,9 +69,51 @@ def scrape_updates(html_content):
     return urls_list
 
 
-# Requisito 3
+# 3 - Crie a função scrape_next_page_link
+#  Para buscar mais notícias, precisaremos fazer a paginação, e para isto,
+# vamos precisar do link da próxima página. Esta função será responsável por
+# fazer o scrape deste link.
+#  A função deve receber como parâmetro uma string contendo o conteúdo HTML da
+# página de novidades (https://blog.betrybe.com)
+# A função deve fazer o scrape deste HTML para obter a URL da próxima página.
 def scrape_next_page_link(html_content):
-    """Seu código deve vir aqui"""
+    # URL_BASE = "http://books.toscrape.com/catalogue/"
+    # # Vamos testar com a primeira página
+    # response = requests.get(URL_BASE + "page-1.html")
+    # selector = Selector(text=response.text)
+    # # Recupera o atributo href do primeiro elemento que combine com o seletor
+    # href = selector.css(".product_pod h3 a::attr(href)").get()
+    # print(href)
+    # # Para obter a url completa, basta adicionar a nossa URL_BASE
+    # print(URL_BASE + href)
+    URL_BASE = "https://blog.betrybe.com"
+    # Caso não encontre o link da próxima página, a função deve retornar None
+    try:
+        selector = Selector(text=html_content)
+        # <span aria-current="page" class="page-numbers current">1</span>
+        page = selector.css(".page-numbers.current::text").get()
+        print(f"\nestou na pagina:{page}")
+    except (requests.HTTPError):
+        return None
+    if not page:
+        return None
+    else:
+        next_page = int(page) + 1
+    # A função deve retornar a URL obtida.
+    print(f"{URL_BASE}/page/{str(next_page)}/")
+    next_page_url = f"{URL_BASE}/page/{str(next_page)}/"
+    return next_page_url
+
+
+# tests/test_scraper.py::test_scrape_next_page_link
+# estou na pagina:1
+# https://blog.betrybe.com/page/2/
+
+# estou na pagina:2
+# https://blog.betrybe.com/page/3/
+
+# estou na pagina:None
+# PASSED
 
 
 # Requisito 4
