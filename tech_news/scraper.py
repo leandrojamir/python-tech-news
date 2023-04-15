@@ -2,6 +2,10 @@ import requests
 import time
 from parsel import Selector
 
+# Para acessar o banco de dados, importe e utilize as funções que já temos
+# prontas em tech_news/database.py
+from tech_news.database import create_news
+
 
 # 1 - Crie a função fetch
 # A função deve receber uma URL
@@ -111,37 +115,31 @@ def scrape_next_page_link(html_content):
 # exatamente o mesmo HTML/CSS e você precise de criatividade para contornar.
 #  A função deve receber como parâmetro o conteúdo HTML da página de uma
 # única notícia
-def scrape_news(html_content):
-    selector = Selector(text=html_content)
+def scrape_news(html_content_url):
+    selector = Selector(text=html_content_url)
     #  A função deve, no conteúdo recebido, buscar as informações das notícias
     # para preencher um dicionário com os seguintes atributos:
     # url - link para acesso da notícia.
     # <link rel="canonical" href="https://blog.betrybe.com/tecnologia/
     # cabos-de-rede/">
     url = selector.css("link[rel='canonical']::attr(href)").get()
-    print(f"\n'url': '{url}'")
     # title - título da notícia.
     # <h1 class="entry-title">Cabos de rede: o que são, quais os tipos e como
     # crimpar?</h1>
     title = selector.css(".entry-title::text").get()
-    print(f"\n'title': '{title}'")
     # timestamp - data da notícia, no formato dd/mm/AAAA.
     # <li class="meta-date">10/04/2023</li>
     timestamp = selector.css(".meta-date::text").get()
-    print(f"\n'timestamp': '{timestamp}'")
     # writer - nome da pessoa autora da notícia.
     # <a class="url fn n" href="https://blog.betrybe.com/author/dayane-arena
     # -dos-santos/" title="View all posts by Dayane Arena dos Santos">Dayane
     # Arena dos Santos</a>
     writer = selector.css(".url.fn.n::text").get()
-    print(f"\n'writer': '{writer}'")
     # reading_time - número de minutos necessários para leitura.
     # <li class="meta-reading-time"><i class="cs-icon cs-icon-clock"></i>
     # 9 minutos de leitura</li>
     reading_time = selector.css(".meta-reading-time::text").get().split()[0]
-    print(type(reading_time))
     reading_time_int = int(reading_time)
-    print(f"\n'reading_time': '{reading_time}'")
     # 'reading_time': '5 minutos de leitura'
     # 'reading_time': '['15', 'minutos', 'de', 'leitura']'
     # summary - o primeiro parágrafo da notícia.
@@ -162,7 +160,6 @@ def scrape_news(html_content):
     # https://www.youtube.com/watch?v=vuLNc2yCNYk 16:52 // 35:34 //p//text()
     # //*[@id="main"]/article/div/div[2]/div[1]/p[1]/text()[1]
     # summary = selector.xpath("//p[1][text()]").get()
-    print(f"\n'summary': '{summary}'")
     # só esta passando com getall porem recebo lista de paragrafos
     # 'summary': '['Desde o surgimento do computador e seus respectivos
     # category - categoria da notícia.
@@ -196,11 +193,45 @@ def scrape_news(html_content):
         "summary": "".join(summary).strip(),
         "category": category,
     }
-    print(f"\numa unica noticia:\n{single_news}")
 
     return single_news
 
 
-# Requisito 5
+# 5 - Crie a função get_tech_news para obter as notícias
+# Agora, chegou a hora de aplicar todas as funções que você acabou de fazer.
+# Com estas ferramentas prontas, podemos fazer nosso scraper mais robusto com
+# a paginação.
+# A função deve receber como parâmetro um número inteiro n e buscar as
+# últimas n notícias do site.
 def get_tech_news(amount):
-    """Seu código deve vir aqui"""
+    data = []
+    url = "https://blog.betrybe.com"
+    while url:
+        html_content = fetch(url)
+        urls_list = scrape_updates(html_content)
+        for url in urls_list:
+            if len(data) == amount:
+                url = None
+                # De aqui em diante, usaremos o MongoDB.
+                # Rodar MongoDB via Docker: <docker-compose up -d mongodb> no
+                # terminal.
+                # Para mais detalhes acerca do mongo com o docker, olhe o
+                # arquivo docker-compose.yml
+                # Com o banco de dados rodando, o nosso módulo conseguirá
+                # acessá-lo sem problemas.
+                # As notícias buscadas devem ser inseridas no MongoDB;
+                create_news(data)
+                # Após inserir as notícias no banco, a função deve retornar
+                # estas mesmas notícias.
+                return data
+            else:
+                # Utilize as funções fetch, scrape_updates,
+                # scrape_next_page_link e scrape_news para buscar as notícias
+                # e processar seu conteúdo.
+                html_content_url = fetch(url)
+                single_news = scrape_news(html_content_url)
+                data.append(single_news)
+                url = scrape_next_page_link(html_content)
+
+# tests/test_scraper.py::test_scrape_news PASSED
+# tests/test_scraper.py::test_get_tech_news PASSED
