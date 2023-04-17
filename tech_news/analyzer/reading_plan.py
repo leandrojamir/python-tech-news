@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 from tech_news.database import find_news
+import pprint
 
 
 class ReadingPlanService:
@@ -29,6 +30,9 @@ class ReadingPlanService:
                 continue
 
             cls._register_readable(available_time, result, new)
+        pprint.pprint(f"\nreadable\n{result['readable']}")
+        print(f"vvv\nreadable len()\n{len(result['readable'])}")
+        pprint.pprint(f"\nunreadable\n{result['unreadable']}")
         return result
 
     @classmethod
