@@ -17,8 +17,6 @@ def search_by_title(title: str):
             "$options": "i",
         },
     }
-    print(f"\nvvv\nbusca pelo titulo:{title}")
-    print(f"\nvvv\nbusca no mongoDB com a query:{query}")
     # Caso nenhuma notícia seja encontrada, deve-se retornar uma lista vazia.
     tuple_list = []
     # A função deve buscar as notícias do banco de dados por título
@@ -32,16 +30,43 @@ def search_by_title(title: str):
     data_with_query = search_news(query)
     for info in data_with_query:
         tuple_list.append((info["title"], info["url"]))
-    print(f"\nvvv\nresultado das buscas{tuple_list}")
 
     return tuple_list
 
 
-# Requisito 8
+# 8 - Crie a função search_by_date
+# Esta função irá buscar as notícias do banco de dados por data.
+# A função deve receber como parâmetro uma data no formato ISO AAAA-mm-dd
+# A função deve buscar as notícias do banco de dados por data.
+# A função deve ter retorno no mesmo formato do requisito anterior.
+#  Caso a data seja inválida, ou esteja em outro formato, uma exceção
+# ValueError deve ser lançada com a mensagem Data inválida.
+# Caso nenhuma notícia seja encontrada, deve-se retornar uma lista vazia.
+#  Lembre-se: A função recebe uma data no formato ISO AAAA-mm-dd, mas no banco
+# a data está salva no formato dd/mm/AAAA. Dica: Lembrem-se de como
+# trabalhamos com datas nos projetos anteriores.
 def search_by_date(date):
     """Seu código deve vir aqui"""
 
 
-# Requisito 9
+# 9 - Crie a função search_by_category
+# Esta função irá buscar as notícias por categoria.
+# A função deve receber como parâmetro o nome da categoria completo.
 def search_by_category(category):
-    """Seu código deve vir aqui"""
+    # A função deve buscar as notícias do banco de dados por categoria.
+    print(f"\nvvv\nbusca pela categoria:{category}")
+    query = {
+        "category": {
+            "$regex": f"{category}",
+            # A busca deve ser case insensitive
+            "$options": "i",
+        },
+    }
+    # Caso nenhuma notícia seja encontrada, deve-se retornar uma lista vazia.
+    tuple_list = []
+    data_with_query = search_news(query)
+    # A função deve ter retorno no mesmo formato do requisito anterior.
+    for info in data_with_query:
+        tuple_list.append((info["title"], info["url"]))
+
+    return tuple_list
