@@ -46,11 +46,9 @@ from tech_news.analyzer.reading_plan import (
 from unittest.mock import MagicMock, patch
 import pytest
 import json
-import pprint
 
 with open("tests/assets/cached_news.json") as file:
     json_list = json.load(file)
-pprint.pprint(f"\nVVV\n{json_list}\n^^^")
 
 
 #  Você deve implementar o teste test_reading_plan_group_news para garantir o
