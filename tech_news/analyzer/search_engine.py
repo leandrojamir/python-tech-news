@@ -5,6 +5,7 @@
 #  Lembre-se; para acesso ao banco de dados importe db definido no módulo
 # tech_news/database.py.
 from tech_news.database import search_news
+from datetime import datetime
 
 
 # A função deve receber uma string com um título de notícia
@@ -37,16 +38,32 @@ def search_by_title(title: str):
 # 8 - Crie a função search_by_date
 # Esta função irá buscar as notícias do banco de dados por data.
 # A função deve receber como parâmetro uma data no formato ISO AAAA-mm-dd
-# A função deve buscar as notícias do banco de dados por data.
-# A função deve ter retorno no mesmo formato do requisito anterior.
-#  Caso a data seja inválida, ou esteja em outro formato, uma exceção
-# ValueError deve ser lançada com a mensagem Data inválida.
-# Caso nenhuma notícia seja encontrada, deve-se retornar uma lista vazia.
-#  Lembre-se: A função recebe uma data no formato ISO AAAA-mm-dd, mas no banco
-# a data está salva no formato dd/mm/AAAA. Dica: Lembrem-se de como
-# trabalhamos com datas nos projetos anteriores.
 def search_by_date(date):
-    """Seu código deve vir aqui"""
+    #  Caso a data seja inválida, ou esteja em outro formato, uma exceção
+    # ValueError deve ser lançada com a mensagem Data inválida.
+    try:
+        print(f"\nvvv\nrecebendo AAAA-mm-dd:{date}")
+        #  Lembre-se: A função recebe uma data no formato ISO AAAA-mm-dd, mas
+        # no banco a data está salva no formato dd/mm/AAAA. Dica: Lembrem-se
+        # de como trabalhamos com datas nos projetos anteriores.
+        isoFormat = datetime.fromisoformat(date).strftime("%d/%m/%Y")
+        print(type(isoFormat))
+        # <class 'datetime.datetime'>
+        print(f"\nvvv\npadrao dd/mm/AAAA:{isoFormat}")
+        # A função deve buscar as notícias do banco de dados por data.
+        query = {"timestamp": {"$regex": f"{isoFormat}"}}
+        # Caso nenhuma notícia seja encontrada, deve-se retornar uma lista
+        # vazia.
+        tuple_list = []
+        data_with_query = search_news(query)
+        # A função deve ter retorno no mesmo formato do requisito anterior.
+        for info in data_with_query:
+            tuple_list.append((info["title"], info["url"]))
+    except ValueError:
+        # ValueError deve ser lançada com a mensagem "Data inválida".
+        raise ValueError("Data inválida")
+
+    return tuple_list
 
 
 # 9 - Crie a função search_by_category
@@ -54,7 +71,6 @@ def search_by_date(date):
 # A função deve receber como parâmetro o nome da categoria completo.
 def search_by_category(category):
     # A função deve buscar as notícias do banco de dados por categoria.
-    print(f"\nvvv\nbusca pela categoria:{category}")
     query = {
         "category": {
             "$regex": f"{category}",
