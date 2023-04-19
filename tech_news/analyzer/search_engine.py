@@ -42,14 +42,11 @@ def search_by_date(date):
     #  Caso a data seja inválida, ou esteja em outro formato, uma exceção
     # ValueError deve ser lançada com a mensagem Data inválida.
     try:
-        print(f"\nvvv\nrecebendo AAAA-mm-dd:{date}")
         #  Lembre-se: A função recebe uma data no formato ISO AAAA-mm-dd, mas
         # no banco a data está salva no formato dd/mm/AAAA. Dica: Lembrem-se
         # de como trabalhamos com datas nos projetos anteriores.
         isoFormat = datetime.fromisoformat(date).strftime("%d/%m/%Y")
-        print(type(isoFormat))
         # <class 'datetime.datetime'>
-        print(f"\nvvv\npadrao dd/mm/AAAA:{isoFormat}")
         # A função deve buscar as notícias do banco de dados por data.
         query = {"timestamp": {"$regex": f"{isoFormat}"}}
         # Caso nenhuma notícia seja encontrada, deve-se retornar uma lista
